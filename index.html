@@ -299,7 +299,17 @@
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <input type="password" id="signupPassword" placeholder="••••••••">
+                        <input type="password" id="signupPassword" placeholder="••••••••" oninput="checkPassword(this.value)">
+                        <div id="pwdStrengthBar" style="margin-top:6px;height:4px;border-radius:4px;background:#eee;overflow:hidden;display:none;">
+                            <div id="pwdStrengthFill" style="height:100%;width:0%;transition:width 0.3s,background 0.3s;border-radius:4px;"></div>
+                        </div>
+                        <div id="pwdConditions" style="margin-top:8px;display:none;font-size:0.82em;display:grid;gap:3px;">
+                            <span id="cLen"  style="color:#aaa;">✗ Min 8 characters</span>
+                            <span id="cUpper" style="color:#aaa;">✗ One uppercase letter (A-Z)</span>
+                            <span id="cLower" style="color:#aaa;">✗ One lowercase letter (a-z)</span>
+                            <span id="cNum"   style="color:#aaa;">✗ One number (0-9)</span>
+                            <span id="cSpec"  style="color:#aaa;">✗ One special character (!@#$%)</span>
+                        </div>
                     </div>
                     <div class="captcha-group">
                         <div class="form-group" style="margin-bottom: 0;">
@@ -403,6 +413,34 @@
             } catch (e) {
                 console.error(e);
             }
+        }
+
+        function checkPassword(val) {
+            const bar   = document.getElementById('pwdStrengthBar');
+            const fill  = document.getElementById('pwdStrengthFill');
+            const conds = document.getElementById('pwdConditions');
+            bar.style.display   = 'block';
+            conds.style.display = 'grid';
+
+            const checks = {
+                cLen:   val.length >= 8,
+                cUpper: /[A-Z]/.test(val),
+                cLower: /[a-z]/.test(val),
+                cNum:   /[0-9]/.test(val),
+                cSpec:  /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)
+            };
+
+            let passed = Object.values(checks).filter(Boolean).length;
+
+            Object.entries(checks).forEach(([id, ok]) => {
+                const el = document.getElementById(id);
+                el.style.color = ok ? '#10b981' : '#aaa';
+                el.textContent = (ok ? '✓ ' : '✗ ') + el.textContent.slice(2);
+            });
+
+            const colors = ['#ef4444','#f97316','#eab308','#3b82f6','#10b981'];
+            fill.style.width      = (passed * 20) + '%';
+            fill.style.background = colors[passed - 1] || '#eee';
         }
 
         function showError(msg, form) {
