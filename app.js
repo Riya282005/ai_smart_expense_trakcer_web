@@ -1,3 +1,14 @@
+// ════════════════════════════════════════════════════════════════
+// 🔴 EMAIL VALIDATION FUNCTION - ADD सबसे पहले
+// ════════════════════════════════════════════════════════════════
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// ════════════════════════════════════════════════════════════════
+
 // Set today's date in expense date input
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
@@ -12,6 +23,7 @@ function getMonthOffset() {
     const targetDate = new Date(today.getFullYear(), today.getMonth() + offset, 1);
     return { year: targetDate.getFullYear(), month: targetDate.getMonth() + 1 };
 }
+
 
 // Show page
 function showPage(page) {
@@ -269,6 +281,7 @@ async function loadSettings() {
         const res = await fetch('/api/summary');
         const data = await res.json();
         document.getElementById('budgetInput').value = data.budget;
+        loadRecurring();  // ✅ CALL loadRecurring() यहाँ
     } catch (e) {
         console.error(e);
     }
@@ -342,4 +355,300 @@ async function logout() {
 
 async function loadAllData() {
     loadExpenses();
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🔴 RECURRING EXPENSES FUNCTIONS
+// ════════════════════════════════════════════════════════════════
+
+async function loadRecurring() {
+    try {
+        const res = await fetch('/api/recurring');
+        
+        if (!res.ok) return;
+        
+        const recurring = await res.json();
+        const container = document.getElementById('recurringList');
+        
+        if (!container) return;
+        
+        // If no recurring expenses
+        if (recurring.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 15px; text-align: center; color: #999; background: #f0f0f0; border-radius: 8px;">
+                    📭 No recurring expenses yet. Add one below!
+                </div>
+            `;
+            return;
+        }
+        
+        // Show all recurring
+        container.innerHTML = recurring.map(r => `
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px;
+                background: white;
+                border-left: 4px solid #d63384;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            ">
+                <div>
+                    <div style="font-weight: 600; color: #1a1a1a;">${r.description}</div>
+                    <div style="font-size: 0.85em; color: #666;">
+                        ${r.category} • Every ${r.frequency}
+                    </div>
+                </div>
+                <div style="text-align: right; margin: 0 15px;">
+                    <div style="font-weight: 700; color: #d63384; font-size: 1.1em;">₹${r.amount}</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="toggleRecurring(${r.id})" style="
+                        padding: 6px 12px;
+                        background: #10b981;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 0.85em;
+                    ">
+                        ⏸️ Pause
+                    </button>
+                    <button onclick="deleteRecurring(${r.id})" style="
+                        padding: 6px 12px;
+                        background: #ef4444;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 0.85em;
+                    ">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (e) {
+        console.error('Error loading recurring:', e);
+    }
+}
+
+// Add new recurring expense
+async function addRecurring() {
+    const name = document.getElementById('recName')?.value?.trim();
+    const amount = parseFloat(document.getElementById('recAmount')?.value);
+    const category = document.getElementById('recCategory')?.value;
+    const frequency = document.getElementById('recFrequency')?.value;
+    const startDate = document.getElementById('recStartDate')?.value;
+    const endDate = document.getElementById('recEndDate')?.value || null;
+    
+    // Validation
+    if (!name || !amount || !category || !frequency || !startDate) {
+        alert('❌ Please fill Name, Amount, Category, Frequency, and Start Date');
+        return;
+    }
+    
+    if (amount <= 0) {
+        alert('❌ Amount must be greater than 0');
+        return;
+    }
+    
+    if (isNaN(amount)) {
+        alert('❌ Invalid amount');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/recurring', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: amount,
+                category: category,
+                description: name,
+                frequency: frequency,
+                start_date: startDate,
+                end_date: endDate
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            // Success message
+            alert(`✅ "${name}" added!\n\n💰 Amount: ₹${amount}\n📅 Frequency: ${frequency}\n🗓️ Starts: ${startDate}\n\nWill auto-add at 12 AM daily!`);
+            
+            // Clear form
+            document.getElementById('recName').value = '';
+            document.getElementById('recAmount').value = '';
+            document.getElementById('recCategory').value = 'Food';
+            document.getElementById('recFrequency').value = 'daily';
+            document.getElementById('recStartDate').value = '';
+            document.getElementById('recEndDate').value = '';
+            
+            // Reload list
+            loadRecurring();
+        } else {
+            alert('❌ Error: ' + (data.error || 'Failed to add'));
+        }
+    } catch (e) {
+        console.error('Error:', e);
+        alert('❌ Connection error');
+    }
+}
+
+// Delete recurring expense
+async function deleteRecurring(id) {
+    if (!confirm('🗑️ Delete this recurring expense?\n\nThis will stop auto-adding!')) {
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/api/recurring/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            alert('✅ Deleted!');
+            setTimeout(() => loadRecurring(), 500);  // ✅ ADD setTimeout
+        } else {
+            alert('❌ Error: ' + (data.error || 'Failed to delete'));
+        }
+    } catch (e) {
+        console.error('Error:', e);
+        alert('❌ Connection error');
+    }
+}
+
+// Pause/Resume recurring
+async function toggleRecurring(id) {
+    try {
+        const res = await fetch(`/api/recurring/${id}/toggle`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            alert(data.message || '✅ Updated!');
+            setTimeout(() => loadRecurring(), 500);  // ✅ ADD setTimeout
+        } else {
+            alert('❌ Error: ' + (data.error || 'Failed to toggle'));
+        }
+    } catch (e) {
+        console.error('Error:', e);
+        alert('❌ Connection error');
+    }
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🔴 EMAIL VALIDATION FUNCTIONS
+// ════════════════════════════════════════════════════════════════
+
+// UPDATED SIGNUP FUNCTION
+async function signup() {
+    const name = document.getElementById('signupName')?.value?.trim();
+    const email = document.getElementById('signupEmail')?.value?.trim().toLowerCase();
+    const password = document.getElementById('signupPassword')?.value;
+    const captcha = document.getElementById('signupCaptcha')?.value;
+    
+    // ✅ VALIDATION 1: Check all fields
+    if (!name || !email || !password || !captcha) {
+        alert('❌ Please fill all fields');
+        return;
+    }
+    
+    // ✅ VALIDATION 2: Email format check
+    if (!isValidEmail(email)) {
+        alert('❌ Please enter a valid email format\nExample: user@gmail.com');
+        return;
+    }
+    
+    // ✅ VALIDATION 3: Password length
+    if (password.length < 6) {
+        alert('❌ Password must be at least 6 characters');
+        return;
+    }
+    
+    // ✅ VALIDATION 4: Name length
+    if (name.length < 2) {
+        alert('❌ Name must be at least 2 characters');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: password,
+                captcha: parseInt(captcha)
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            alert(`✅ Account created!\n\nWelcome ${data.name}!`);
+            location.href = '/dashboard';
+        } else {
+            alert('❌ Error: ' + (data.error || 'Signup failed'));
+        }
+    } catch (e) {
+        console.error(e);
+        alert('❌ Connection error');
+    }
+}
+
+// UPDATED LOGIN FUNCTION
+async function login() {
+    const email = document.getElementById('loginEmail')?.value?.trim().toLowerCase();
+    const password = document.getElementById('loginPassword')?.value;
+    const captcha = document.getElementById('loginCaptcha')?.value;
+    
+    // ✅ VALIDATION 1: Check all fields
+    if (!email || !password || !captcha) {
+        alert('❌ Please fill all fields');
+        return;
+    }
+    
+    // ✅ VALIDATION 2: Email format check
+    if (!isValidEmail(email)) {
+        alert('❌ Please enter a valid email format\nExample: user@gmail.com');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                captcha: parseInt(captcha)
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            alert(`✅ Login successful!\n\nWelcome back ${data.name}!`);
+            location.href = '/dashboard';
+        } else {
+            alert('❌ ' + (data.error || 'Login failed'));
+        }
+    } catch (e) {
+        console.error(e);
+        alert('❌ Connection error');
+    }
 }
