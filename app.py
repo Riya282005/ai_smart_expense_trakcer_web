@@ -68,7 +68,8 @@ def _require_env(key, fallback=None):
     return val
 
 app.config['SECRET_KEY']              = os.environ.get('SECRET_KEY', 'fallback-secret-change-in-prod')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///smartexpense.db').replace('postgres://', 'postgresql://')
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///smartexpense.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url.replace('postgres://', 'postgresql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET']              = os.environ.get('JWT_SECRET', 'fallback-jwt-change-in-prod')
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
