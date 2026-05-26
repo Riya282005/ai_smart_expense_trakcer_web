@@ -961,28 +961,31 @@ def _load_demo(user_id):
     db.session.commit()
     today       = date.today()
     monthly_data = [
-        {'Food':          [('Ghar ka khana', 800), ('Grocery', 900), ('Chai-snacks', 200)],
-         'Bills':         [('Electricity', 1800), ('Internet', 999)],
-         'Transport':     [('Metro pass', 800), ('Auto', 300)],
-         'Shopping':      [('Kapde', 1200), ('Pharmacy', 400)],
-         'Entertainment': [('Movie', 400), ('OTT', 499)],
-         'Health':        [('Gym', 1200), ('Vitamins', 400)],
-         'Others':        [('Gifts', 500)]},
-        {'Food':          [('Restaurant', 2200), ('Grocery', 1400), ('Swiggy', 900), ('Chai', 300)],
-         'Bills':         [('Electricity', 2200), ('Internet', 999), ('Gas', 800)],
-         'Transport':     [('Uber', 1200), ('Petrol', 1800), ('Auto', 400)],
-         'Shopping':      [('Amazon', 2100), ('Myntra', 1500)],
-         'Entertainment': [('Concerts', 1200), ('MovieTickets', 800), ('OTT', 499)],
-         'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
-         'Others':        [('Donation', 300), ('Misc', 600)]},
-        {'Food':          [('Parties', 3200), ('Grocery', 1800), ('Zomato', 1400), ('Cafe', 800)],
-         'Bills':         [('Electricity', 2400), ('Internet', 999), ('Gas', 850)],
-         'Transport':     [('Metro', 600), ('Auto', 200)],
-         'Shopping':      [('Birthday gifts', 3500), ('Clothes', 1200)],
-         'Entertainment': [('OTT', 499), ('Game', 300)],
-         'Health':        [('Gym', 1200), ('Checkup', 500)],
-         'Others':        [('Charity', 400)]},
-    ]
+    # March
+    {'Food':          [('Ghar ka khana', 700), ('Grocery', 850), ('Chai-snacks', 150)],
+     'Bills':         [('Electricity', 1600), ('Internet', 999)],
+     'Transport':     [('Metro pass', 700), ('Auto', 200)],
+     'Shopping':      [('Pharmacy', 350)],
+     'Entertainment': [('OTT', 499)],
+     'Health':        [('Gym', 1200)],
+     'Others':        [('Misc', 300)]},
+    # April
+    {'Food':          [('Restaurant', 2200), ('Grocery', 1400), ('Swiggy', 900), ('Chai', 300)],
+     'Bills':         [('Electricity', 2200), ('Internet', 999), ('Gas', 800)],
+     'Transport':     [('Uber', 1200), ('Petrol', 1800), ('Auto', 400)],
+     'Shopping':      [('Amazon', 2100), ('Myntra', 1500)],
+     'Entertainment': [('Concerts', 1200), ('MovieTickets', 800), ('OTT', 499)],
+     'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
+     'Others':        [('Donation', 300), ('Misc', 600)]},
+    # May
+    {'Food':          [('Grocery', 1100), ('Swiggy', 600), ('Chai', 150)],
+     'Bills':         [('Electricity', 1900), ('Internet', 999)],
+     'Transport':     [('Metro', 500), ('Auto', 180)],
+     'Shopping':      [('Shoes', 1800)],
+     'Entertainment': [('OTT', 499)],
+     'Health':        [('Gym', 1200)],
+     'Others':        [('Misc', 200)]},
+]
     for offset, m_data in enumerate(reversed(monthly_data)):
         yr, mo = today.year, today.month - (len(monthly_data) - 1 - offset)
         while mo <= 0:
