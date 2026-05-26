@@ -960,6 +960,7 @@ def _load_demo(user_id):
     Expense.query.filter_by(user_id=user_id).delete()
     db.session.commit()
     today       = date.today()
+    random.seed(42)
     monthly_data = [
     # March
     {'Food':          [('Ghar ka khana', 700), ('Grocery', 850), ('Chai-snacks', 150)],
