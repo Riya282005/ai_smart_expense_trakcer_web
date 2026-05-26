@@ -737,7 +737,11 @@ def demo_login():
         )
         db.session.add(demo)
         db.session.commit()
-        _load_demo(demo.id)
+    
+    _load_demo(demo.id)  # ← yeh line add ki
+    demo.xp = 100
+    db.session.commit()
+    
     log_activity('demo_login', demo.id, 'Demo login')
     resp = jsonify({'message': 'Demo login!', 'name': demo.name})
     resp.set_cookie('token', generate_token(demo.id), httponly=True, max_age=7 * 24 * 3600)
