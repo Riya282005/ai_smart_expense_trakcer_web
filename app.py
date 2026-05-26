@@ -982,13 +982,14 @@ def _load_demo(user_id):
          'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
          'Others':        [('Donation', 300), ('Misc', 600)]},
         # May
-        {'Food':          [('Grocery', 1100), ('Swiggy', 600), ('Chai', 150)],
-         'Bills':         [('Electricity', 1900), ('Internet', 999)],
-         'Transport':     [('Metro', 500), ('Auto', 180)],
-         'Shopping':      [('Shoes', 1800)],
-         'Entertainment': [('OTT', 499)],
-         'Health':        [('Gym', 1200)],
-         'Others':        [('Misc', 200)]},
+       
+{'Food':          [('Grocery', 2800), ('Swiggy', 1200), ('Chai', 300)],   # April 4800 tha, May 4300
+ 'Bills':         [('Electricity', 2200), ('Internet', 999)],              # same
+ 'Transport':     [('Metro', 500), ('Auto', 180)],                         # April se kam — insight aayega
+ 'Shopping':      [('Shoes', 4200)],                                       # April 3600 tha, May zyada
+ 'Entertainment': [('OTT', 499), ('Concert', 800)],                       # April se zyada
+ 'Health':        [('Gym', 1200)],
+ 'Others':        [('Misc', 200)]},
     ]
     for offset, m_data in enumerate(reversed(monthly_data)):
         yr, mo = today.year, today.month - (len(monthly_data) - 1 - offset)
