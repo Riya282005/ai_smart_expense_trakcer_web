@@ -959,55 +959,51 @@ def link_telegram(u):
 def _load_demo(user_id):
     Expense.query.filter_by(user_id=user_id).delete()
     db.session.commit()
-    today       = date.today()
-    random.seed(42)
+    today = date.today()
     monthly_data = [
-    # March
-    {'Food':          [('Ghar ka khana', 700), ('Grocery', 850), ('Chai-snacks', 150)],
-     'Bills':         [('Electricity', 1600), ('Internet', 999)],
-     'Transport':     [('Metro pass', 700), ('Auto', 200)],
-     'Shopping':      [('Pharmacy', 350)],
-     'Entertainment': [('OTT', 499)],
-     'Health':        [('Gym', 1200)],
-     'Others':        [('Misc', 300)]},
-    # April
-    {'Food':          [('Restaurant', 2200), ('Grocery', 1400), ('Swiggy', 900), ('Chai', 300)],
-     'Bills':         [('Electricity', 2200), ('Internet', 999), ('Gas', 800)],
-     'Transport':     [('Uber', 1200), ('Petrol', 1800), ('Auto', 400)],
-     'Shopping':      [('Amazon', 2100), ('Myntra', 1500)],
-     'Entertainment': [('Concerts', 1200), ('MovieTickets', 800), ('OTT', 499)],
-     'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
-     'Others':        [('Donation', 300), ('Misc', 600)]},
-    # May
-    {'Food':          [('Grocery', 1100), ('Swiggy', 600), ('Chai', 150)],
-     'Bills':         [('Electricity', 1900), ('Internet', 999)],
-     'Transport':     [('Metro', 500), ('Auto', 180)],
-     'Shopping':      [('Shoes', 1800)],
-     'Entertainment': [('OTT', 499)],
-     'Health':        [('Gym', 1200)],
-     'Others':        [('Misc', 200)]},
-]
+        # March
+        {'Food':          [('Ghar ka khana', 700), ('Grocery', 850), ('Chai-snacks', 150)],
+         'Bills':         [('Electricity', 1600), ('Internet', 999)],
+         'Transport':     [('Metro pass', 700), ('Auto', 200)],
+         'Shopping':      [('Pharmacy', 350)],
+         'Entertainment': [('OTT', 499)],
+         'Health':        [('Gym', 1200)],
+         'Others':        [('Misc', 300)]},
+        # April
+        {'Food':          [('Restaurant', 2200), ('Grocery', 1400), ('Swiggy', 900), ('Chai', 300)],
+         'Bills':         [('Electricity', 2200), ('Internet', 999), ('Gas', 800)],
+         'Transport':     [('Uber', 1200), ('Petrol', 1800), ('Auto', 400)],
+         'Shopping':      [('Amazon', 2100), ('Myntra', 1500)],
+         'Entertainment': [('Concerts', 1200), ('MovieTickets', 800), ('OTT', 499)],
+         'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
+         'Others':        [('Donation', 300), ('Misc', 600)]},
+        # May
+        {'Food':          [('Grocery', 1100), ('Swiggy', 600), ('Chai', 150)],
+         'Bills':         [('Electricity', 1900), ('Internet', 999)],
+         'Transport':     [('Metro', 500), ('Auto', 180)],
+         'Shopping':      [('Shoes', 1800)],
+         'Entertainment': [('OTT', 499)],
+         'Health':        [('Gym', 1200)],
+         'Others':        [('Misc', 200)]},
+    ]
     for offset, m_data in enumerate(reversed(monthly_data)):
         yr, mo = today.year, today.month - (len(monthly_data) - 1 - offset)
         while mo <= 0:
             mo += 12
             yr -= 1
-        # FIX: use monthrange so Feb doesn't crash
         max_day = monthrange(yr, mo)[1]
         for cat, items in m_data.items():
-            for desc, base in items:
-                amt   = round(base * random.uniform(0.90, 1.10), 2)
-                edate = date(yr, mo, random.randint(1, max_day))
+            for desc, amt in items:  # ← 'base' ki jagah 'amt' directly
+                edate = date(yr, mo, 15)  # ← random date bhi hata, fixed 15 rakh
                 db.session.add(Expense(
                     user_id     = user_id,
-                    amount      = amt,
+                    amount      = amt,  # ← seedha amount, koi random nahi
                     category    = cat,
                     description = desc,
                     date        = edate,
                     is_surprise = amt > 3000
                 ))
     db.session.commit()
-
 @app.route('/api/load-demo-data', methods=['POST'])
 @token_required
 def load_demo_data(u):
