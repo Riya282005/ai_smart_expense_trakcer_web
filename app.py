@@ -1,4 +1,4 @@
-import os, jwt, csv, io, random, smtplib, requests, json, logging ,threading
+import os, jwt, csv, io, random, smtplib, requests, json, logging
 import re
 from calendar import monthrange
 from datetime import datetime, timedelta, date
@@ -737,10 +737,9 @@ def demo_login():
         )
         db.session.add(demo)
         db.session.commit()
-    
-    _load_demo(demo.id)  # ← yeh line add ki
-    demo.xp = 100
-    db.session.commit()
+        _load_demo(demo.id)  # ← sirf pehli baar
+        demo.xp = 100
+        db.session.commit()
     
     log_activity('demo_login', demo.id, 'Demo login')
     resp = jsonify({'message': 'Demo login!', 'name': demo.name})
@@ -965,31 +964,31 @@ def _load_demo(user_id):
     db.session.commit()
     today = date.today()
     monthly_data = [
-        # March
-        {'Food':          [('Ghar ka khana', 700), ('Grocery', 850), ('Chai-snacks', 150)],
-         'Bills':         [('Electricity', 1600), ('Internet', 999)],
-         'Transport':     [('Metro pass', 700), ('Auto', 200)],
-         'Shopping':      [('Pharmacy', 350)],
-         'Entertainment': [('OTT', 499)],
-         'Health':        [('Gym', 1200)],
-         'Others':        [('Misc', 300)]},
-        # April
-        {'Food':          [('Restaurant', 2200), ('Grocery', 1400), ('Swiggy', 900), ('Chai', 300)],
-         'Bills':         [('Electricity', 2200), ('Internet', 999), ('Gas', 800)],
-         'Transport':     [('Uber', 1200), ('Petrol', 1800), ('Auto', 400)],
-         'Shopping':      [('Amazon', 2100), ('Myntra', 1500)],
-         'Entertainment': [('Concerts', 1200), ('MovieTickets', 800), ('OTT', 499)],
-         'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
-         'Others':        [('Donation', 300), ('Misc', 600)]},
-        # May
-        {'Food':          [('Grocery', 1100), ('Swiggy', 600), ('Chai', 150)],
-         'Bills':         [('Electricity', 1900), ('Internet', 999)],
-         'Transport':     [('Metro', 500), ('Auto', 180)],
-         'Shopping':      [('Shoes', 1800)],
-         'Entertainment': [('OTT', 499)],
-         'Health':        [('Gym', 1200)],
-         'Others':        [('Misc', 200)]},
-    ]
+    # March
+    {'Food':          [('Ghar ka khana', 700), ('Grocery', 850), ('Chai-snacks', 150)],
+     'Bills':         [('Electricity', 1600), ('Internet', 999)],
+     'Transport':     [('Metro pass', 700), ('Auto', 200)],
+     'Shopping':      [('Pharmacy', 350)],
+     'Entertainment': [('OTT', 499)],
+     'Health':        [('Gym', 1200)],
+     'Others':        [('Misc', 300)]},
+    # April
+    {'Food':          [('Restaurant', 2200), ('Grocery', 1400), ('Swiggy', 900), ('Chai', 300)],
+     'Bills':         [('Electricity', 2200), ('Internet', 999), ('Gas', 800)],
+     'Transport':     [('Uber', 1200), ('Petrol', 1800), ('Auto', 400)],
+     'Shopping':      [('Amazon', 2100), ('Myntra', 1500)],
+     'Entertainment': [('Concerts', 1200), ('MovieTickets', 800), ('OTT', 499)],
+     'Health':        [('Doctor', 800), ('Medicines', 600), ('Gym', 1200)],
+     'Others':        [('Donation', 300), ('Misc', 600)]},
+    # May
+    {'Food':          [('Grocery', 5500), ('Swiggy', 1800), ('Chai', 300)],
+     'Bills':         [('Electricity', 2200), ('Internet', 999)],
+     'Transport':     [('Metro', 500), ('Auto', 180)],
+     'Shopping':      [('Shoes', 4200), ('Clothes', 2000)],
+     'Entertainment': [('OTT', 499), ('Concert', 2500)],
+     'Health':        [('Gym', 1200)],
+     'Others':        [('Misc', 200)]},
+]
     for offset, m_data in enumerate(reversed(monthly_data)):
         yr, mo = today.year, today.month - (len(monthly_data) - 1 - offset)
         while mo <= 0:
@@ -1170,7 +1169,6 @@ def send_test_email_route():
                 count += 1
                 log_activity('test_email_sent', u.id, f'Test email sent to {u.email}')
         return jsonify({'message': f'✅ Test email sent to {count} user(s)!', 'count': count})
-
 
 
 # ── Recurring Expense Routes ──────────────────────────────────────────────────
