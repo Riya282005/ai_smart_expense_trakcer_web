@@ -598,7 +598,7 @@ def generate_weekly_email(user_id):
         </div>
 
         <p style='text-align:center;margin-top:30px'>
-            <a href='https://smartexpense-ai.vercel.app'
+            <a href='web-production-23b00.up.railway.app'
                style='background:#d63384;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block'>
                View Full Dashboard
             </a>
